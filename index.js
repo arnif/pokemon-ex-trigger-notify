@@ -2,7 +2,7 @@ const moment = require('moment');
 const axios = require('axios');
 const Twitter = require('twitter');
 
-const possibleGyms = ['Turtle'];
+const possibleGyms = ['Turtle', 'Stóriteigur - Public playground and Mini Park'];
 
 const alreadyNotified = [];
 
@@ -100,6 +100,8 @@ const main = () => {
                 if (alreadyNotified.indexOf(r.raid.raid_id) === -1) {
                     tweetRaid(constructTweet(r));
                     alreadyNotified.push(`${r.raid.raid_id}-${r.raid.raid_start}`);
+                } else {
+                    console.log('already notified', constructTweet(r));
                 }
             });
         });
