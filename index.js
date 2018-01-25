@@ -97,7 +97,8 @@ const main = () => {
             const pp = getPossibleGyms(gyms);
             const possibleRaids = getPossibleRaids(raids, pp);
             possibleRaids.forEach(r => {
-                if (alreadyNotified.indexOf(r.raid.raid_id) === -1) {
+                console.log(alreadyNotified);
+                if (alreadyNotified.indexOf(`${r.raid.raid_id}-${r.raid.raid_start}`) === -1) {
                     tweetRaid(constructTweet(r));
                     alreadyNotified.push(`${r.raid.raid_id}-${r.raid.raid_start}`);
                 } else {
