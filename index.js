@@ -98,9 +98,9 @@ const main = () => {
             const possibleRaids = getPossibleRaids(raids, pp);
             possibleRaids.forEach(r => {
                 console.log(alreadyNotified);
-                if (alreadyNotified.indexOf(`${r.raid.raid_id}-${r.raid.raid_start}`) === -1) {
+                if (alreadyNotified.indexOf(`${r.raid.pokemon_name}-${r.raid.raid_start}`) === -1) {
                     tweetRaid(constructTweet(r));
-                    alreadyNotified.push(`${r.raid.raid_id}-${r.raid.raid_start}`);
+                    alreadyNotified.push(`${r.raid.pokemon_name}-${r.raid.raid_start}`);
                 } else {
                     console.log('already notified', constructTweet(r));
                 }
