@@ -96,11 +96,14 @@ const main = () => {
         getRaidData().then(raids => {
             const pp = getPossibleGyms(gyms);
             const possibleRaids = getPossibleRaids(raids, pp);
+            console.log('nr of possibleGyms', pp.length);
+            console.log('nr of possibleRaids', possibleRaids.length);
             possibleRaids.forEach(r => {
                 console.log(alreadyNotified);
-                if (alreadyNotified.indexOf(`${r.raid.pokemon_name}-${r.raid.raid_start}`) === -1) {
+                const id = r.raid.pokemon_name ? r.raid.pokemon_name : 'not-started';
+                if (alreadyNotified.indexOf(`${id}-${r.raid.raid_start}`) === -1) {
                     tweetRaid(constructTweet(r));
-                    alreadyNotified.push(`${r.raid.pokemon_name}-${r.raid.raid_start}`);
+                    alreadyNotified.push(`${id}-${r.raid.raid_start}`);
                 } else {
                     console.log('already notified', constructTweet(r));
                 }
