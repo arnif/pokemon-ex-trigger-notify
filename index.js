@@ -2,7 +2,7 @@ const moment = require('moment');
 const axios = require('axios');
 const Twitter = require('twitter');
 
-const possibleGyms = ['Turtle', 'Stóriteigur - Public playground and Mini Park'];
+const possibleGyms = ['Turtle', 'Stóriteigur - Public playground and Mini Park', 'Sonur'];
 
 const alreadyNotified = [];
 
