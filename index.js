@@ -2,6 +2,9 @@ const moment = require("moment");
 const axios = require("axios");
 const Twitter = require("twitter");
 
+const fake_gym = require('./gym_data');
+const fake_raids = require('./raid_data');
+
 const possibleGyms = [
   { id: 921, getName: name => name }, // turtle
   { id: 966, getName: name => "Stóriteigur" },
@@ -19,6 +22,7 @@ var client = new Twitter({
 
 const getGymData = () => {
   return new Promise(resolve => {
+    // resolve(fake_gym.gym_data);
     axios.get("http://instinct.hunda.io/gym_data").then(({ data }) => {
       resolve(data);
     });
@@ -27,6 +31,7 @@ const getGymData = () => {
 
 getRaidData = () => {
   return new Promise(resolve => {
+    // resolve(fake_raids.raid_data);
     axios.get("http://instinct.hunda.io/raid_data").then(({ data }) => {
       resolve(data);
     });
@@ -38,7 +43,9 @@ const getPossibleGyms = gyms => {
     .map(gym => {
       const index = possibleGyms.findIndex(g => `fort-${g.id}` === gym.id);
       if (index !== -1) {
-        return { ...gym, name: possibleGyms[index].getName(gym.name) };
+        return Object.assign({}, gym, {
+          name: possibleGyms[index].getName(gym.name),
+        });
       }
     })
     .filter(Boolean);
@@ -101,6 +108,7 @@ const main = () => {
         const id = r.raid.pokemon_name ? r.raid.pokemon_name : "not-started";
         if (alreadyNotified.indexOf(`${id}-${r.raid.raid_start}`) === -1) {
           const t = constructTweet(r);
+          // console.log(t);
           tweetRaid(t);
           alreadyNotified.push(`${id}-${r.raid.raid_start}`);
         } else {
