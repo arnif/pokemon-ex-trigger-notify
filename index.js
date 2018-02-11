@@ -6,9 +6,10 @@ const fake_gym = require('./gym_data');
 const fake_raids = require('./raid_data');
 
 const possibleGyms = [
-  { id: 921, getName: name => name }, // turtle
-  { id: 966, getName: name => "Stóriteigur" },
-  { id: 757, getName: name => name }, // sonur
+  // { id: 921, getName: name => name }, // turtle
+  // { id: 966, getName: name => "Stóriteigur" },
+  // { id: 757, getName: name => name }, // sonur
+  { id: 714, getName: name => name }, // Einar Ben
 ];
 
 const alreadyNotified = [];
