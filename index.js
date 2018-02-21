@@ -9,7 +9,9 @@ const possibleGyms = [
   // { id: 921, getName: name => name }, // turtle
   // { id: 966, getName: name => "Stóriteigur" },
   // { id: 757, getName: name => name }, // sonur
-  { id: 714, getName: name => name }, // Einar Ben
+  // { id: 714, getName: name => name }, // Einar Ben
+  { id: 791, getName: name => name }, // Reykjarvikurvarðan
+  { id: 956, getName: name => name }, // Höfði
 ];
 
 const alreadyNotified = [];
