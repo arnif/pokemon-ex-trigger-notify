@@ -1,128 +1,113 @@
-const moment = require("moment");
-const axios = require("axios");
-const Twitter = require("twitter");
+const moment = require('moment');
+const axios = require('axios');
+const Twitter = require('twitter');
 
 const fake_gym = require('./gym_data');
 const fake_raids = require('./raid_data');
 
+const raid_url = 'http://instinct.hunda.io/raids';
+
 const possibleGyms = [
-  // { id: 921, getName: name => name }, // turtle
-  // { id: 966, getName: name => "Stóriteigur" },
-  // { id: 757, getName: name => name }, // sonur
-  // { id: 714, getName: name => name }, // Einar Ben
-  { id: 791, getName: name => name }, // Reykjarvikurvarðan
-  { id: 956, getName: name => name }, // Höfði
+    // { id: 921, getName: name => name }, // turtle
+    // { id: 966, getName: name => "Stóriteigur" },
+    // { id: 757, getName: name => name }, // sonur
+    // { id: 714, getName: name => name }, // Einar Ben
+    {lat: 64.13733, getName: name => name}, // Reykjarvikurvarðan
+    {lat: 64.146453, getName: name => name}, // Höfði
 ];
 
 const alreadyNotified = [];
 
 var client = new Twitter({
-  consumer_key: process.env.TWITTER_EX_CONSUMER_KEY,
-  consumer_secret: process.env.TWITTER_EX_CONSUMER_SECRET,
-  access_token_key: process.env.TWITTER_EX_ACCESS_TOKEN,
-  access_token_secret: process.env.TWITTER_EX_ACCESS_TOKEN_SECRET,
+    consumer_key: process.env.TWITTER_EX_CONSUMER_KEY,
+    consumer_secret: process.env.TWITTER_EX_CONSUMER_SECRET,
+    access_token_key: process.env.TWITTER_EX_ACCESS_TOKEN,
+    access_token_secret: process.env.TWITTER_EX_ACCESS_TOKEN_SECRET,
 });
 
-const getGymData = () => {
-  return new Promise(resolve => {
-    // resolve(fake_gym.gym_data);
-    axios.get("http://instinct.hunda.io/gym_data").then(({ data }) => {
-      resolve(data);
-    });
-  });
-};
-
 getRaidData = () => {
-  return new Promise(resolve => {
-    // resolve(fake_raids.raid_data);
-    axios.get("http://instinct.hunda.io/raid_data").then(({ data }) => {
-      resolve(data);
-    });
-  });
-};
-
-const getPossibleGyms = gyms => {
-  return gyms
-    .map(gym => {
-      const index = possibleGyms.findIndex(g => `fort-${g.id}` === gym.id);
-      if (index !== -1) {
-        return Object.assign({}, gym, {
-          name: possibleGyms[index].getName(gym.name),
+    return new Promise(resolve => {
+        // resolve(fake_raids.raid_data);
+        axios.get(raid_url).then(({data}) => {
+            resolve(data);
         });
-      }
-    })
-    .filter(Boolean);
+    });
 };
 
-const getPossibleRaids = (raids, gyms) => {
-  return raids
-    .map(raid => {
-      const gym = gyms.find(g => g.id === `fort-${raid.fort_id}`);
-      if (gym) {
-        return { raid, gym };
-      }
-    })
-    .filter(Boolean);
+const getPossibleRaids = raids => {
+    return raids
+        .map(raid => {
+            const rr = possibleGyms.find(p => p.lat === raid.lat);
+            if (rr) {
+                return {...raid, ...rr};
+            }
+        })
+        .filter(Boolean);
 };
 
-const constructTweet = ({ raid, gym }) => {
-  const start = moment(moment.unix(raid.raid_start).format())
-    .utcOffset(0)
-    .format("HH:mm:ss");
-  const end = moment(moment.unix(raid.raid_end).format())
-    .utcOffset(0)
-    .format("HH:mm:ss");
+const constructTweet = raid => {
+    const start = moment(moment.unix(raid.time_battle).format())
+        .utcOffset(0)
+        .format('HH:mm:ss');
+    const end = moment(moment.unix(raid.time_end).format())
+        .utcOffset(0)
+        .format('HH:mm:ss');
 
-  const url = `http://maps.google.com/maps?saddr=&daddr=${gym.lat},${gym.lon}&directionsmode=driving`;
-  let message = "";
-  if (!raid.pokemon_name) {
-    message = `Possible EX trigger raid at ${gym.name}. Level ${raid.raid_level}. Starts at: ${start}. Ends at: ${end} ${url}`;
-  } else {
-    message = `Possible EX trigger raid started! ${gym.name}. Level ${raid.raid_level}, ${raid.pokemon_name}. Ends at: ${end} ${url}`;
-  }
+    const url = `http://maps.google.com/maps?saddr=&daddr=${raid.lat},${
+        raid.lon
+    }&directionsmode=driving`;
+    let message = '';
+    if (raid.pokemon_name === '--') {
+        message = `Possible EX trigger raid at ${raid.getName(raid.name)}. Level ${
+            raid.level
+        }. Starts at: ${start}. Ends at: ${end} ${url}`;
+    } else {
+        message = `Possible EX trigger raid started! ${raid.getName(raid.name)}. Level ${
+            raid.level
+        }, ${raid.pokemon_name}. Ends at: ${end} ${url}`;
+    }
 
-  return {
-    status: message,
-    lat: parseFloat(gym.lat),
-    long: parseFloat(gym.lon),
-    display_coordinates: true,
-  };
+    return {
+        status: message,
+        lat: parseFloat(raid.lat),
+        long: parseFloat(raid.lon),
+        display_coordinates: true,
+    };
 };
 
 const tweetRaid = tweetObject => {
-  client.post("statuses/update", tweetObject, function(error, tweet, response) {
-    if (error) {
-      console.log("error", error);
-      return;
-    }
-    console.log("tweet", tweet);
-  });
+    client.post('statuses/update', tweetObject, function(error, tweet, response) {
+        if (error) {
+            console.log('error', error);
+            return;
+        }
+        console.log('tweet', tweet);
+    });
 };
 
 const main = () => {
-  getGymData().then(gyms => {
     getRaidData().then(raids => {
-      const pp = getPossibleGyms(gyms);
-      const possibleRaids = getPossibleRaids(raids, pp);
-      console.log("nr of possibleGyms", pp.length);
-      console.log("nr of possibleRaids", possibleRaids.length);
-      possibleRaids.forEach(r => {
-        console.log(alreadyNotified);
-        const id = r.raid.pokemon_name ? r.raid.pokemon_name : "not-started";
-        if (alreadyNotified.indexOf(`${id}-${r.raid.raid_start}`) === -1) {
-          const t = constructTweet(r);
-          // console.log(t);
-          tweetRaid(t);
-          alreadyNotified.push(`${id}-${r.raid.raid_start}`);
-        } else {
-          console.log("already notified", constructTweet(r));
-        }
-      });
+        // console.log(raids);
+        const possibleRaids = getPossibleRaids(raids);
+        console.log(possibleRaids);
+        console.log('nr of possibleRaids', possibleRaids.length);
+        possibleRaids.forEach(raid => {
+            console.log(alreadyNotified);
+            const name = raid.pokemon_name !== '--' ? raid.pokemon_name : 'not-started';
+            const id = `${name}-${raid.time_battle}`;
+            if (alreadyNotified.indexOf(id) === -1) {
+                const t = constructTweet(raid);
+                console.log(t);
+                tweetRaid(t);
+                alreadyNotified.push(id);
+            } else {
+                console.log('already notified', constructTweet(raid));
+            }
+        });
     });
-  });
 };
 
 main();
 setInterval(() => {
-  main();
+    main();
 }, 30000);
