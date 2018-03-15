@@ -9,12 +9,9 @@ const fake_raids2 = require("./raid_datav2");
 const raid_url = "http://instinct.hunda.io/raids";
 
 const possibleGyms = [
-  // { lat: 64.13654, getName: name => name }, // turtle
+  { lat: 64.13654, getName: name => name }, // turtle
   // { id: 966, getName: name => "Stóriteigur" },
-  // { id: 757, getName: name => name }, // sonur
-  { lat: 64.146458, getName: name => name }, // Einar Ben
-  // { lat: 64.13733, getName: name => name }, // Reykjarvikurvarðan
-  // { lat: 64.146453, getName: name => name }, // Höfði
+  // { lat: 64.146458, getName: name => name }, // Einar Ben
 ];
 
 const alreadyNotified = [];
