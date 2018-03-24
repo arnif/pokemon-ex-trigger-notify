@@ -11,7 +11,7 @@ const raid_url = "http://instinct.hunda.io/raids";
 const possibleGyms = [
   { lat: 64.13654, getName: name => name }, // turtle
   // { id: 966, getName: name => "Stóriteigur" },
-  // { lat: 64.146458, getName: name => name }, // Einar Ben
+  { lat: 64.146458, getName: name => name }, // Einar Ben
 ];
 
 const alreadyNotified = [];
